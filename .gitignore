@@ -1,0 +1,30 @@
+# Environments
+.env
+.venv
+.venv2
+env/
+venv/
+venv2/
+ENV/
+env.bak/
+venv.bak/
+
+# Generated files
+bin/
+gen/
+out/
+mock/
+**/.DS_Store
+
+# Local configuration file
+local.properties
+
+# Log Files
+*.log
+
+# node.js
+dist/
+node_modules/
+
+# templete
+Temp/

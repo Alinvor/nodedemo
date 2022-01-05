@@ -5,6 +5,8 @@
     "type": "commonjs",
     "main": "./src/app.js",
     "scripts": {
+        "case_base64": "node ./src/case/test_base64.js",
+        "start": "node ./src/app.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -22,5 +24,8 @@
     },
     "keywords": [
         "demo"
-    ]
+    ],
+    "dependencies": {
+        "moment": "^2.29.1"
+    }
 }

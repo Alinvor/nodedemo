@@ -23,6 +23,7 @@ local.properties
 *.log
 
 # node.js
+build/
 dist/
 node_modules/
 

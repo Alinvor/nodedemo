@@ -6,6 +6,7 @@
     "main": "./src/app.js",
     "scripts": {
         "case_base64": "node ./src/case/test_base64.js",
+        "case_bookmarks": "node ./src/case/test_bookmarks.js",
         "start": "node ./src/app.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },

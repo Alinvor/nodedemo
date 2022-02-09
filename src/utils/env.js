@@ -5,6 +5,7 @@ const path = require('path');
 const PROJECT_ROOT_PATH = path.join(__dirname, '../../');
 const BUILD = path.join(PROJECT_ROOT_PATH, 'build');
 const TEMP = path.join(PROJECT_ROOT_PATH, 'TEMP');
+const BOOKMARKS = path.join(TEMP, 'bookmarks');
 
 function readFromFile(file_name) {
     if (fs.existsSync(file_name)) {
@@ -50,6 +51,7 @@ module.exports = {
     PROJECT_ROOT_PATH,
     BUILD,
     TEMP,
+    BOOKMARKS,
     readFromFile,
     writeToFile,
     writeToRandomFile,

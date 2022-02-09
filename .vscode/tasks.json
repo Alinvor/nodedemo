@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "detail": "node ./src/app.js",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "label": "1. npm: start",
+            "problemMatcher": [],
+            "script": "start",
+            "type": "npm",
+        },
+        {
+            "detail": "node ./src/case/test_base64.js",
+            "label": "2. npm: base64",
+            "problemMatcher": [],
+            "script": "case_base64",
+            "type": "npm",
+        },
+        {
+            "detail": "node ./src/case/test_bookmarks.js",
+            "label": "3. npm: bookmarks",
+            "problemMatcher": [],
+            "script": "case_bookmarks",
+            "type": "npm",
+        },
+    ]
+}

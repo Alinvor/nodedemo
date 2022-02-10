@@ -91,12 +91,10 @@ function onExecute(file_name) {
             item.name = $(this)
                 .text()
                 .trim()
-                // .replace('\n', '')
                 .replace(/\s{2,}/, ' ', 'gi');
             item.href = $(this).attr('href');
             item.timestamp = $(this).attr('add_date');
             item.duplicate = false;
-            item.point = [0, 0];
             container_with_object[index] = item;
         });
     }
@@ -140,20 +138,7 @@ function init() {
         const item_with_object = onExecute(value);
         if (null != item_with_object && item_with_object.length > 0) {
             container_with_object.forEach((cvalue, cindex) => {
-                if (cvalue.point) {
-                    cvalue.point[0] = cindex;
-                }
                 item_with_object.forEach((ivalue, iindex) => {
-                    cvalue.point = [cindex, iindex];
-                    ivalue.point = [cindex, iindex];
-                    // if (cvalue.href === ivalue.href) {
-                    //     if (cvalue.name != ivalue.name) {
-                    //         cvalue.name += ' | ' + ivalue.name;
-                    //     }
-                    //     cvalue.duplicate = true;
-                    // } else {
-                    //     cvalue.duplicate = false;
-                    // }
                     if (cvalue.href === ivalue.href) {
                         if (cvalue.timestamp >= ivalue.timestamp) {
                             ivalue.duplicate = true;
@@ -169,28 +154,8 @@ function init() {
                             cvalue.href = ivalue.href;
                             cvalue.timestamp = ivalue.timestamp;
                             // cvalue.duplicate = ivalue.duplicate;
-                            // cvalue.point = ivalue.point;
                         }
                     }
-                    // if (cvalue.timestamp >= ivalue.timestamp) {
-                    //     if (cvalue.href === ivalue.href) {
-                    //         if (cvalue.name != ivalue.name) {
-                    //             cvalue.name += ' | ' + ivalue.name;
-                    //         }
-                    //         ivalue.duplicate = true;
-                    //     } else {
-                    //         ivalue.duplicate = false;
-                    //     }
-                    // } else {
-                    //     if (cvalue.href === ivalue.href) {
-                    //         if (ivalue.name != cvalue.name) {
-                    //             ivalue.name += ' | ' + cvalue.name;
-                    //         }
-                    //         cvalue.duplicate = true;
-                    //     } else {
-                    //         cvalue.duplicate = false;
-                    //     }
-                    // }
                 }, cindex);
             });
             // 去重问题

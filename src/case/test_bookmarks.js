@@ -12,7 +12,9 @@ const path = require('path');
  */
 function obtainUseCases() {
     let file_names = [];
-    let files = fs.readdirSync(env.BOOKMARKS);
+    let files = fs.readdirSync(env.BOOKMARKS, {
+        encoding: 'utf-8',
+    });
     if (null != files && files.length > 0) {
         files.forEach((value, index) => {
             file_names.push(path.join(env.BOOKMARKS, value));
@@ -35,7 +37,16 @@ function onExecute(file_name) {
     if (fs.existsSync(file_name) && ['html', 'htm'].indexOf(file_name.split('.').pop().toLowerCase()) !== -1) {
         content = env.readFromFile(file_name);
     } else {
-        throw Error('the sepical file that is not found.');
+        // throw Error('the sepical file that is not found.');
+        String.prototype.format = function () {
+            var formatted = this;
+            for (var arg in arguments) {
+                formatted = formatted.replace('{' + arg + '}', arguments[arg]);
+            }
+            return formatted;
+        };
+        console.warn('...the sepical file({0}) that is not found...'.format(file_name));
+        return container_with_object;
     }
     if (content) {
         const $ = cheerio.load(content);
@@ -77,10 +88,15 @@ function onExecute(file_name) {
             let item = {};
             item.index = index;
             item.icon = $(this).attr('icon');
-            item.name = $(this).text().trim();
+            item.name = $(this)
+                .text()
+                .trim()
+                // .replace('\n', '')
+                .replace(/\s{2,}/, ' ', 'gi');
             item.href = $(this).attr('href');
             item.timestamp = $(this).attr('add_date');
             item.duplicate = false;
+            item.point = [0, 0];
             container_with_object[index] = item;
         });
     }
@@ -94,9 +110,15 @@ function onExecute(file_name) {
 function onResult(container_with_object, onCallback) {
     if (null != container_with_object && container_with_object.length > 0) {
         let content = [];
+        let current_index = 0;
         container_with_object.forEach((value, index) => {
-            content.push(new String(index + 1) + '. [' + value.name + '](' + value.href + ')');
-        });
+            if (value.duplicate) {
+                current_index = index;
+            } else {
+                current_index += 1;
+                content.push(new String(current_index) + '. [' + value.name + '](' + value.href + ')');
+            }
+        }, current_index);
         env.writeToRandomFile(content.join('\n'), value => {
             onCallback();
         });
@@ -115,16 +137,78 @@ function init() {
     file_names = obtainUseCases();
     let container_with_object = [];
     file_names.forEach((value, index) => {
-        // TODO 去重问题，暂不处理
-        container_with_object = container_with_object.concat(onExecute(value));
-        if (file_names.length - 1 == index) {
-            onResult(container_with_object, () => {
-                console.log('...构建 ' + (index + 1) + '. ' + value + ' 完成...');
+        const item_with_object = onExecute(value);
+        if (null != item_with_object && item_with_object.length > 0) {
+            container_with_object.forEach((cvalue, cindex) => {
+                if (cvalue.point) {
+                    cvalue.point[0] = cindex;
+                }
+                item_with_object.forEach((ivalue, iindex) => {
+                    cvalue.point = [cindex, iindex];
+                    ivalue.point = [cindex, iindex];
+                    // if (cvalue.href === ivalue.href) {
+                    //     if (cvalue.name != ivalue.name) {
+                    //         cvalue.name += ' | ' + ivalue.name;
+                    //     }
+                    //     cvalue.duplicate = true;
+                    // } else {
+                    //     cvalue.duplicate = false;
+                    // }
+                    if (cvalue.href === ivalue.href) {
+                        if (cvalue.timestamp >= ivalue.timestamp) {
+                            ivalue.duplicate = true;
+                        } else {
+                            if (cvalue.name == ivalue.name) {
+                                cvalue.name = ivalue.name;
+                            } else {
+                                cvalue.name += ' | ' + ivalue.name;
+                            }
+                            // cvalue.index = ivalue.index;
+                            cvalue.icon = ivalue.icon;
+                            cvalue.name = ivalue.name;
+                            cvalue.href = ivalue.href;
+                            cvalue.timestamp = ivalue.timestamp;
+                            // cvalue.duplicate = ivalue.duplicate;
+                            // cvalue.point = ivalue.point;
+                        }
+                    }
+                    // if (cvalue.timestamp >= ivalue.timestamp) {
+                    //     if (cvalue.href === ivalue.href) {
+                    //         if (cvalue.name != ivalue.name) {
+                    //             cvalue.name += ' | ' + ivalue.name;
+                    //         }
+                    //         ivalue.duplicate = true;
+                    //     } else {
+                    //         ivalue.duplicate = false;
+                    //     }
+                    // } else {
+                    //     if (cvalue.href === ivalue.href) {
+                    //         if (ivalue.name != cvalue.name) {
+                    //             ivalue.name += ' | ' + cvalue.name;
+                    //         }
+                    //         cvalue.duplicate = true;
+                    //     } else {
+                    //         cvalue.duplicate = false;
+                    //     }
+                    // }
+                }, cindex);
             });
-        } else {
-            (() => {
-                console.log('...构建 ' + (index + 1) + '. ' + value + ' 完成...');
-            })();
+            // 去重问题
+            let item_with_object_with_filter = item_with_object.filter((value, index) => {
+                return !value.duplicate;
+            });
+            if (null != item_with_object_with_filter && item_with_object_with_filter.length > 0) {
+                container_with_object = container_with_object.concat(item_with_object_with_filter);
+            }
+            if (file_names.length - 1 == index) {
+                onResult(container_with_object, () => {
+                    console.log('...构建 ' + (index + 1) + '. ' + value + ' 完成...');
+                });
+            } else {
+                (() => {
+                    console.log('...构建 ' + (index + 1) + '. ' + value + ' 完成...');
+                })();
+            }
         }
     }, container_with_object);
     console.log('...构建完成...');
